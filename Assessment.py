@@ -10,6 +10,7 @@ from sklearn import metrics
 import seaborn as sb
 import pandas as pd
 
+sb.set_style("whitegrid")
 cmap = sb.color_palette('plasma', 8)
 #sb.palplot(cmap)
 
@@ -44,7 +45,7 @@ def visualize_prediction(y, y_pred, filename):
     y_pred = pd.DataFrame(y_pred)
     y1 = y.values.flatten()
     y_pred1 = y_pred.values.flatten() 
-    plt.style.use('ggplot')
+#    plt.style.use('ggplot')
     
     #Plot true vs predicted output 
     plt.figure()
@@ -119,26 +120,41 @@ def evaluate_binary_classification(y, y_pred, filename):
     plt.grid(True)
     plt.savefig('ROC_'+filename)
     plt.show()
+
+def plot_score(all_cv_scores, filename):
+    i=0
+    MSE, MAE, EVS = [],[],[]
+    for i in range(len(all_cv_scores)):
+        MSE.append(all_cv_scores[i]['mean_test_MSE'])
+        MAE.append(all_cv_scores[i]['mean_test_MAE'])
+        EVS.append(all_cv_scores[i]['mean_test_EVS'])
+    MSE = pd.DataFrame(MSE)
+    MAE = pd.DataFrame(MAE)
+    EVS = pd.DataFrame(EVS)
     
-def plot_grid_search(cv_score, grid_param_1, grid_param_2, name_param_1, name_param_2):
-    # Get Test Scores Mean and std for each grid search
-    scores_mean = cv_score['mean_test_MSE']
-    scores_mean = np.array(scores_mean).reshape(len(grid_param_2),len(grid_param_1))
-
-    scores_sd = cv_score['std_test_MSE']
-    scores_sd = np.array(scores_sd).reshape(len(grid_param_2),len(grid_param_1))
-
-    # Plot Grid search scores
-    _, ax = plt.subplots(1,1)
-
-    # Param1 is the X-axis, Param 2 is represented as a different curve (color line)
-    for idx, val in enumerate(grid_param_2):
-        ax.plot(grid_param_1, scores_mean[idx,:], '-o', label= name_param_2 + ': ' + str(val))
-
-    ax.set_title("Grid Search Scores", fontsize=20, fontweight='bold')
-    ax.set_xlabel(name_param_1, fontsize=16)
-    ax.set_ylabel('CV Average Score', fontsize=16)
-    ax.legend(loc="best", fontsize=15)
-    ax.grid('on')
-
-# Calling Method 
+    plt.figure(1)
+    sb.violinplot(data=MSE, palette='plasma', inner="points", scale='area', linewidth=1)
+    plt.title('Cross Validation Score (MSE)')
+    plt.xlabel('Model')
+    plt.ylabel('Score')
+    plt.savefig(filename + '_CV_MSE', dpi=300)
+    plt.show()
+    plt.close()
+    
+    plt.figure(2)
+    sb.violinplot(data=MAE, palette='plasma', inner="points", scale='area', linewidth=1)
+    plt.title('Cross Validation Score (MAE)')
+    plt.xlabel('Model')
+    plt.ylabel('Score')
+    plt.savefig(filename + '_CV_MAE', dpi=300)
+    plt.show()
+    plt.close()
+    
+    plt.figure(3)
+    sb.violinplot(data=EVS, palette='plasma', inner="points", scale='area', linewidth=1)
+    plt.title('Cross Validation Score (EVS)')
+    plt.xlabel('Model')
+    plt.ylabel('Score')
+    plt.savefig(filename + '_CV_EVS', dpi=300)
+    plt.show()
+    plt.close()
