@@ -6,21 +6,23 @@ Created on Mon Jun 10 17:08:26 2019
 @author: dohoangthutrang
 """
 import pandas as pd
+import numpy as np
 
 def check_any_null(dataset_list):
     for dataset in dataset_list:
         print(dataset.isnull().values.any())
+        print(np.any(np.isnan(dataset)))
 
-def get_mutual_celllines(dataset_list):
+def get_unmutual_celllines(dataset_list):
     celllines_list = []
-    for dataset in dataset_list:
-        celllines_list.append(dataset.index.values)
-    cosmic_id = min(celllines_list, key=len).tolist()
-    for l in celllines_list:
-        for i in cosmic_id:
-            if i not in l:
-                cosmic_id.remove(i)
-    return cosmic_id
+    for dataset1 in dataset_list:
+        a = dataset1.index.values.tolist()
+        for dataset2 in dataset_list:
+            b = dataset2.index.values.tolist()
+            diff = list(set(a) - set(b))
+            for i in diff:
+                celllines_list.append(i)
+    return celllines_list
 
 def get_processed_data(dataset, cosmic_id, filename):
     dataset=dataset.reindex(index = cosmic_id)
@@ -31,13 +33,16 @@ MUT = pd.read_csv('mutation_dataset.csv', delimiter=',', index_col = 0)
 DRUG = pd.read_csv('drug_dataset.csv', delimiter=',', index_col = 0)
 
 dataset_list = [GE,CNV,MUT,DRUG]
-cosmic_id = get_mutual_celllines(dataset_list)
+cosmic_id = get_unmutual_celllines(dataset_list)
+for dataset in dataset_list:
+    index = list(set(dataset.index.values.tolist()) - set(cosmic_id))
+    print(len(index)) #Check if len of datasets are the same after removal of cell
 
-CNV = CNV.reindex(index = cosmic_id)
-CNV.to_csv('processed_CNV.csv')
-DRUG = DRUG.reindex(index = cosmic_id)
-DRUG.to_csv('processed_DR.csv')
-GE = GE.reindex(index = cosmic_id)
-GE.to_csv('processed_GE.csv')
-MUT = MUT.reindex(index = cosmic_id)
-MUT.to_csv('processed_MUT.csv')
+CNV = CNV.reindex(index = index)
+#CNV.to_csv('processed_CNV1.csv')
+DRUG = DRUG.reindex(index = index)
+#DRUG.to_csv('processed_DR1.csv')
+GE = GE.reindex(index = index)
+#GE.to_csv('processed_GE1.csv')
+MUT = MUT.reindex(index = index)
+#MUT.to_csv('processed_MUT1.csv')
