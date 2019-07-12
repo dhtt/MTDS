@@ -71,7 +71,7 @@ test_list_new = drop_new_drugs(test_list, Y)
 pred_list_new = binarize_output(pred_list_new)
 test_list_new = binarize_output(test_list_new)
 
-#Assessment.evaluate_binary_classification(test_list_new, pred_list_new,'MUT')
+Assessment.evaluate_binary_classification(test_list_new, pred_list_new,'MUT')
 
 '''Plot best models over 200 epochs'''
 def plot_best_models(epoch_loss_list, filename):
